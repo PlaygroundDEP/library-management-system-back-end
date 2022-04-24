@@ -1,19 +1,30 @@
-package lk.ijse.dep8.lims.filter;
+package lk.ijse.dep8.lims.api.filter;
 
 import javax.servlet.*;
 import javax.servlet.annotation.*;
+import javax.servlet.http.HttpFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter(filterName = "CorsFilter")
-public class CorsFilter implements Filter {
-    public void init(FilterConfig config) throws ServletException {
-    }
-
-    public void destroy() {
-    }
-
+@WebFilter(filterName = "CorsFilter", urlPatterns = "/*")
+public class CorsFilter extends HttpFilter {
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
-        chain.doFilter(request, response);
+    protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        String origin = req.getHeader("Origin");
+        if (origin != null && origin.contains(getServletContext().getInitParameter("origin"))){
+            res.setHeader("Access-Control-Allow-Origin", origin);
+            if (req.getMethod().equals("OPTIONS")){
+                res.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, HEAD, OPTIONS");
+                res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+                res.setHeader("Access-Control-Expose-Headers", "Content-Type");
+            }
+        }
+        chain.doFilter(req,res);
     }
 }
